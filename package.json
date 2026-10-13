@@ -1,0 +1,21 @@
+{
+  "name": "upl-auditorias-universitarias-rosario",
+  "version": "1.0.0",
+  "description": "Auditorías Universitarias — Regional Rosario (Universitarios por la Libertad). Clon adaptado y enriquecido con foco en la UNR y el polo académico de Rosario y la región.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "upl",
+    "auditorias",
+    "rosario",
+    "unr",
+    "universitarios-por-la-libertad",
+    "spu",
+    "agn"
+  ],
+  "author": "Universitarios por la Libertad - Regional Rosario",
+  "license": "MIT"
+}

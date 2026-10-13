@@ -1,0 +1,936 @@
+/* ==========================================================================
+   UPL AUDITORÍAS UNIVERSITARIAS — REGIONAL ROSARIO (SANTA FE / UNR / UTN)
+   Sistema de Diseño Fiel al Frontend Oficial de UPL:
+   Navbar flotante píldora, Mapa provincial con Inset, Tarjeta VS de 5 columnas,
+   Píldoras de métrica, Lista de rankings y Drawer de auditoría.
+   ========================================================================== */
+
+:root {
+  --color-upl-bg: #0b0d1c;
+  --color-upl-bg-darker: #070814;
+  --color-upl-surface: #171b32;
+  --color-upl-surface-glass: rgba(23, 27, 50, 0.72);
+  
+  --color-upl-principal: #242c50;
+  --color-upl-principal-light: #34406f;
+  --color-upl-secundario: #371959;
+  
+  --color-upl-amarillo: #facf3b;
+  --color-upl-amarillo-hover: #fedb58;
+  --color-upl-resaltador: #e4b862;
+  
+  --color-upl-crema: #fffff9;
+  --color-upl-crema-muted: rgba(255, 255, 249, 0.65);
+  --color-upl-crema-faint: rgba(255, 255, 249, 0.35);
+  --color-upl-crema-subtle: rgba(255, 255, 249, 0.08);
+  
+  --color-map-province: #4a5580;
+  --color-map-stroke: #2a3360;
+  --color-map-hover: #5d6b9f;
+  --color-map-active: #facf3b;
+  
+  --color-danger: #e2574c;
+  --color-danger-soft: #ff8a7a;
+  --color-danger-bg: rgba(226, 87, 76, 0.15);
+  
+  --color-success: #8fd19e;
+  --color-info: #8fb7ff;
+
+  --font-display: 'Baloo 2', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --shadow-glass: 0 8px 30px rgba(10, 8, 30, 0.35);
+  --shadow-strong: 0 20px 60px rgba(5, 4, 20, 0.5);
+  --shadow-pill: 0 4px 16px rgba(250, 207, 59, 0.35);
+}
+
+/* Reset básico */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--color-upl-bg);
+  color: var(--color-upl-crema);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--color-upl-bg);
+  background-image: 
+    radial-gradient(circle at 12% 20%, rgba(55, 25, 89, 0.38) 0%, transparent 45%),
+    radial-gradient(circle at 88% 45%, rgba(36, 44, 80, 0.45) 0%, transparent 50%),
+    radial-gradient(circle at 50% 92%, rgba(228, 184, 98, 0.08) 0%, transparent 40%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+  color: var(--color-upl-crema);
+}
+
+p, span, li, a {
+  text-wrap: pretty;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Scrollbar idéntico */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 9, 19, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-upl-principal-light);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-upl-resaltador);
+}
+
+/* Blobs de Fondo con Animación 'drift' */
+.blob-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(75px);
+  pointer-events: none;
+  opacity: 0.45;
+  animation: 22s ease-in-out infinite alternate drift;
+}
+.blob-1 {
+  width: 38rem;
+  height: 38rem;
+  background-color: rgba(55, 25, 89, 0.5);
+  top: -10rem;
+  left: -10rem;
+}
+.blob-2 {
+  width: 30rem;
+  height: 30rem;
+  background-color: rgba(228, 184, 98, 0.18);
+  bottom: -5rem;
+  right: -5rem;
+  animation-delay: -7s;
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(35px, 25px) scale(1.06); }
+  100% { transform: translate(-25px, 40px) scale(0.96); }
+}
+
+/* Clases Glass Oficiales UPL */
+.glass {
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 249, 0.06);
+  border: 1px solid rgba(255, 255, 249, 0.12);
+  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.35);
+}
+.glass-flat {
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.12);
+  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.35);
+}
+.glass-strong {
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+  background: rgba(23, 27, 50, 0.75);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  box-shadow: 0 20px 60px rgba(5, 4, 20, 0.5);
+}
+.glass-chip {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+}
+
+/* ==========================================================================
+   HEADER / NAVBAR FLOTANTE ESTILO PÍLDORA (Exacto a Imágenes 2 y 3)
+   ========================================================================== */
+.floating-header-wrapper {
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
+  pointer-events: none;
+}
+
+.floating-navbar-pill {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 1060px;
+  background: rgba(23, 27, 50, 0.78);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 16px 45px rgba(5, 4, 20, 0.6);
+  padding: 0.55rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  transition: all 0.25s ease;
+}
+
+.nav-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  min-width: 0;
+}
+.nav-brand-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 249, 0.1);
+}
+.nav-brand-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-upl-crema);
+  white-space: nowrap;
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.nav-badge-rosario {
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--color-upl-amarillo);
+  color: #121833;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.05em;
+}
+.nav-brand-sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-upl-amarillo);
+  letter-spacing: 0.02em;
+}
+
+.nav-items-center {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-items-center::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-pill-link {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-upl-crema-muted);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.nav-pill-link:hover {
+  color: var(--color-upl-crema);
+  background: rgba(255, 255, 249, 0.08);
+}
+.nav-pill-link.active {
+  background: var(--color-upl-amarillo);
+  color: #121833;
+  font-weight: 800;
+  box-shadow: 0 2px 14px rgba(250, 207, 59, 0.35);
+}
+
+.nav-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Switcher Pesos | USD */
+.currency-switch-pill {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+.curr-btn {
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 249, 0.7);
+  transition: all 0.15s ease;
+}
+.curr-btn:hover {
+  color: var(--color-upl-crema);
+}
+.curr-btn.active {
+  background: var(--color-upl-amarillo);
+  color: #121833;
+  box-shadow: 0 1px 6px rgba(250, 207, 59, 0.3);
+}
+
+/* ==========================================================================
+   VISTA DEL MAPA REGIONAL DE SANTA FE Y ROSARIO (Exacto a Imagen 2)
+   ========================================================================== */
+.map-fullscreen-stage {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 5rem;
+  padding-bottom: 2rem;
+  overflow: hidden;
+}
+
+.map-svg-viewport {
+  position: relative;
+  width: 100%;
+  max-width: 1180px;
+  height: 82vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.santafe-svg-root {
+  width: 100%;
+  height: 100%;
+  max-height: 80vh;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.6));
+}
+
+/* Silueta de Santa Fe */
+.santafe-shape {
+  fill: var(--color-map-province);
+  stroke: var(--color-map-stroke);
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease, filter 0.2s ease;
+}
+.santafe-shape:hover {
+  fill: var(--color-map-hover);
+}
+
+/* Departamentos / Divisiones interiores */
+.dept-border {
+  stroke: rgba(23, 27, 50, 0.6);
+  stroke-width: 0.6;
+  fill: none;
+}
+
+/* Pines Universitarios */
+.uni-pin-circle {
+  cursor: pointer;
+  transition: transform 0.2s ease, r 0.2s ease, filter 0.2s ease;
+}
+.uni-pin-circle:hover {
+  r: 3.8;
+  filter: drop-shadow(0 0 8px #facf3b);
+}
+.uni-pin-circle.pin-data {
+  fill: var(--color-upl-amarillo);
+}
+.uni-pin-circle.pin-sede {
+  fill: var(--color-info);
+  opacity: 0.85;
+}
+
+/* Inset Zoom Lateral de Gran Rosario */
+.map-inset-container {
+  position: absolute;
+  right: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 270px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.inset-svg-canvas {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
+}
+
+/* Tarjeta Flotante Inferior Izquierda (Exacta a Imagen 2) */
+.map-legend-floating-card {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 30;
+  width: 250px;
+  background: rgba(23, 27, 50, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  font-size: 0.78rem;
+}
+
+.map-legend-floating-card p {
+  color: var(--color-upl-crema-muted);
+  line-height: 1.4;
+}
+
+.legend-row-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.76rem;
+  color: var(--color-upl-crema);
+}
+.legend-dot-yellow {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-upl-amarillo);
+  border: 1px solid var(--color-upl-principal);
+}
+.legend-dot-dashed {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px dashed var(--color-upl-amarillo);
+}
+
+.toggle-sedes-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
+.switch-pill-track {
+  width: 32px;
+  height: 18px;
+  background: var(--color-upl-principal-light);
+  border-radius: var(--radius-full);
+  position: relative;
+  transition: background 0.2s ease;
+}
+.switch-pill-track.on {
+  background: var(--color-info);
+}
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+.switch-pill-track.on .switch-knob {
+  transform: translateX(14px);
+}
+
+.btn-search-uni-pill {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.16);
+  padding: 0.5rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--color-upl-crema);
+  transition: all 0.15s ease;
+  margin-top: 0.25rem;
+}
+.btn-search-uni-pill:hover {
+  background: rgba(255, 255, 249, 0.16);
+  border-color: var(--color-upl-amarillo);
+  color: var(--color-upl-amarillo);
+}
+
+.source-footer-link {
+  font-size: 0.72rem;
+  color: var(--color-upl-crema-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+.source-footer-link:hover {
+  color: var(--color-upl-amarillo);
+}
+
+/* ==========================================================================
+   VISTA DE RANKINGS Y ALERTAS ROSARIO (Exacto a Imagen 3)
+   ========================================================================== */
+.rankings-page-layout {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 6.5rem 1.25rem 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+.k-page-title {
+  font-size: clamp(2rem, 3.8vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.k-page-desc {
+  font-size: 0.95rem;
+  color: var(--color-upl-crema-muted);
+  line-height: 1.6;
+  max-width: 980px;
+  margin-bottom: 1.5rem;
+}
+
+/* Alerta roja/violeta idéntica */
+.k-alert-box {
+  background: rgba(55, 25, 89, 0.4);
+  border: 1px solid rgba(226, 87, 76, 0.4);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+  color: rgba(255, 255, 249, 0.9);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  box-shadow: 0 8px 30px rgba(55, 25, 89, 0.25);
+}
+
+/* Barra de Filtro de Ámbito */
+.k-filter-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.k-vs-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-upl-crema);
+}
+
+.scope-dropdown-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(23, 27, 50, 0.85);
+  border: 1px solid rgba(255, 255, 249, 0.16);
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-upl-crema);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.scope-dropdown-pill:hover {
+  border-color: var(--color-upl-amarillo);
+}
+
+/* Tarjeta Comparativa 'VS' Oficial (5 Columnas Idénticas a Imagen 3) */
+.vs-comparison-card {
+  background: rgba(23, 27, 50, 0.75);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 16px 45px rgba(5, 4, 20, 0.5);
+  margin-bottom: 0.75rem;
+}
+
+.vs-columns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.vs-col-item {
+  display: flex;
+  flex-direction: column;
+}
+.vs-col-header {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-upl-amarillo);
+  margin-bottom: 0.65rem;
+}
+
+.vs-numbers-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.vs-subgroup {
+  display: flex;
+  flex-direction: column;
+}
+.vs-sub-lbl {
+  font-size: 0.68rem;
+  color: var(--color-upl-crema-faint);
+  margin-bottom: 0.1rem;
+}
+.vs-sub-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--color-upl-crema);
+}
+.vs-sub-num.peor {
+  color: var(--color-danger-soft);
+}
+.vs-badge-peor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--color-danger-soft);
+  margin-top: 0.2rem;
+}
+
+.vs-middle-vs {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-upl-crema-faint);
+  text-transform: uppercase;
+}
+
+.vs-footer-caption {
+  font-size: 0.75rem;
+  color: var(--color-upl-crema-faint);
+  line-height: 1.45;
+  margin-bottom: 1.75rem;
+}
+
+/* Fila de Botones Píldoras de Métrica */
+.metric-pills-selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.metric-pill-button {
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--color-upl-crema-muted);
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.12);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.metric-pill-button:hover {
+  color: var(--color-upl-crema);
+  background: rgba(255, 255, 249, 0.14);
+}
+.metric-pill-button.active {
+  background: var(--color-upl-amarillo);
+  color: #121833;
+  border-color: var(--color-upl-amarillo);
+  box-shadow: 0 4px 14px rgba(250, 207, 59, 0.35);
+}
+
+/* Barra de Subtítulo y Botón de Ordenamiento */
+.ranking-meta-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.ranking-meta-info {
+  font-size: 0.82rem;
+  color: var(--color-upl-crema-muted);
+}
+
+.sort-toggle-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 249, 0.08);
+  border: 1px solid rgba(255, 255, 249, 0.14);
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-upl-crema);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.sort-toggle-pill-btn:hover {
+  background: rgba(255, 255, 249, 0.16);
+  border-color: var(--color-upl-amarillo);
+}
+
+/* Lista Vertical de Tarjetas Ranking */
+.ranked-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ranked-card-entry {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 249, 0.06);
+  border: 1px solid rgba(255, 255, 249, 0.1);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.25rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.ranked-card-entry:hover {
+  background: rgba(250, 207, 59, 0.12);
+  border-color: rgba(250, 207, 59, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.ranked-pos-col {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: rgba(255, 255, 249, 0.3);
+  width: 28px;
+  text-align: center;
+  shrink: 0;
+}
+
+.uni-sigla-badge {
+  background: var(--color-upl-principal);
+  border: 1px solid rgba(52, 64, 111, 0.8);
+  color: var(--color-upl-amarillo);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.ranked-info-col {
+  flex: 1;
+  min-width: 0;
+}
+.ranked-name-main {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-upl-crema);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ranked-geo-sub {
+  font-size: 0.75rem;
+  color: var(--color-upl-crema-muted);
+}
+
+.ranked-metric-col {
+  text-align: right;
+  shrink: 0;
+}
+.ranked-metric-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--color-upl-amarillo);
+  line-height: 1;
+}
+.ranked-metric-extra {
+  font-size: 0.7rem;
+  color: var(--color-upl-crema-faint);
+  margin-top: 0.15rem;
+}
+
+/* Modal y Backdrop */
+.modal-backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(4, 6, 14, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.modal-backdrop-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dossier-window-card {
+  background: #11152d;
+  border: 1px solid rgba(52, 64, 111, 0.8);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 960px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 30px rgba(250, 207, 59, 0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-backdrop-overlay.active .dossier-window-card {
+  transform: translateY(0) scale(1);
+}
+
+.modal-close-corner-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255, 255, 249, 0.1);
+  color: var(--color-upl-crema);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 10;
+}
+.modal-close-corner-btn:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .floating-header-bar {
+    padding: 0.5rem 0.85rem;
+  }
+  .nav-brand-title {
+    font-size: 0.92rem;
+  }
+  .nav-brand-sub {
+    display: none;
+  }
+  .map-fullscreen-stage {
+    padding-top: 4.5rem;
+  }
+  .map-legend-floating-card {
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+  .map-inset-container {
+    display: none;
+  }
+  .vs-columns-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

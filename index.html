@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditorías Universitarias — Regional Rosario | Universitarios por la Libertad</title>
+  <meta name="description" content="Mapa y auditorías de las universidades nacionales argentinas con foco regional en la UNR (Universidad Nacional de Rosario). Datos oficiales de la SPU y la AGN.">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+
+  <!-- Open Graph / Meta Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Auditorías Universitarias">
+  <meta property="og:title" content="Auditorías Universitarias — Regional Rosario">
+  <meta property="og:description" content="Mapa de las universidades nacionales y facultades de la UNR con datos oficiales de la SPU: cuántos se reciben a tiempo, cuántos no aprueban ninguna materia y cuánto cuesta cada graduado.">
+  <meta property="og:image" content="logo.jpg">
+  <meta property="og:locale" content="es_AR">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@upl_arg">
+
+  <!-- Google Fonts: Baloo 2 & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Oficiales UPL -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Blobs Flotantes de Fondo con Animación 'drift' -->
+  <div class="blob-container" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- Header / Navbar Flotante Estilo Píldora (Exacto a Imágenes 2 y 3) -->
+  <header class="floating-header-wrapper">
+    <div class="floating-navbar-pill">
+      <!-- Marca y Logo UPL -->
+      <a href="#/" class="nav-brand-group" title="Auditorías Universitarias">
+        <img src="logo.jpg" alt="Logo UPL" class="nav-brand-logo">
+        <div>
+          <div class="nav-brand-title">
+            Auditorías Universitarias
+            <span class="nav-badge-rosario">ROSARIO</span>
+          </div>
+          <div class="nav-brand-sub">Universitarios por la Libertad</div>
+        </div>
+      </a>
+
+      <!-- Píldoras de Navegación -->
+      <nav class="nav-items-center" aria-label="Navegación principal">
+        <a href="#/" class="nav-pill-link active" data-route="mapa">Mapa</a>
+        <a href="#/rankings" class="nav-pill-link" data-route="rankings">Rankings</a>
+        <a href="#/universidades-kirchneristas" class="nav-pill-link" data-route="kirchneristas">Universidades K</a>
+        <a href="#/propuestas" class="nav-pill-link" data-route="propuestas">Propuestas</a>
+        <a href="https://www.argentina.gob.ar/educacion/universidades/informacion/publicaciones/anuarios" target="_blank" rel="noreferrer" class="nav-pill-link" title="Anuarios SPU">
+          <span>Anuarios SPU</span>
+          <span style="font-size: 0.8rem;" aria-hidden="true">↗</span>
+        </a>
+      </nav>
+
+      <!-- Selector Pesos | USD -->
+      <div class="nav-right-actions">
+        <div class="currency-switch-pill" role="radiogroup" aria-label="Moneda">
+          <button class="curr-btn active" data-curr="ARS" onclick="setCurrency('ARS')">Pesos</button>
+          <button class="curr-btn" data-curr="USD" onclick="setCurrency('USD')">USD</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal (Cambia dinámicamente según la ruta) -->
+  <main id="mainContentContainer">
+    <!-- Inyectado por app.js -->
+  </main>
+
+  <!-- Modal de Ficha / Drawer de Auditoría -->
+  <div id="dossierModalOverlay" class="modal-backdrop-overlay" onclick="if(event.target === this) closeDossierModal()">
+    <div id="dossierModalContent">
+      <!-- Inyectado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Modal de Búsqueda Global (Ctrl + K) -->
+  <div id="searchModalOverlay" class="modal-backdrop-overlay" onclick="if(event.target === this) closeSearchModal()">
+    <div class="glass-strong" style="width: 100%; max-width: 600px; border-radius: 20px; padding: 1.25rem; border: 1px solid rgba(250, 207, 59, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+      <div style="display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid rgba(255, 255, 249, 0.12); padding-bottom: 0.85rem; margin-bottom: 0.75rem;">
+        <span style="font-size: 1.2rem;">🔍</span>
+        <input type="text" id="searchGlobalInput" style="width: 100%; background: transparent; border: none; font-size: 1.05rem; color: #fffff9; outline: none; font-family: var(--font-sans);" placeholder="Buscar universidad, facultad o palabra clave..." oninput="handleGlobalSearchInput(this.value)">
+        <button class="curr-btn" onclick="closeSearchModal()">ESC</button>
+      </div>
+      <div id="searchResultsContainer" style="max-height: 380px; overflow-y: auto;">
+        <!-- Resultados -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data_bundle.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
