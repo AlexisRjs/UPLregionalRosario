@@ -36,37 +36,39 @@
   <!-- Header / Navbar Flotante Estilo Píldora (Exacto a Imágenes 2 y 3) -->
   <header class="floating-header-wrapper">
     <div class="floating-navbar-pill">
-      <!-- Marca y Logo UPL -->
-      <a href="#/" class="nav-brand-group" title="Auditorías Universitarias">
-        <img src="logo.jpg" alt="Logo UPL" class="nav-brand-logo">
-        <div>
-          <div class="nav-brand-title">
-            Auditorías Universitarias
-            <span class="nav-badge-rosario">ROSARIO</span>
+      <!-- Fila Superior: Marca a la izquierda, Moneda a la derecha -->
+      <div class="nav-mobile-top-row">
+        <!-- Marca y Logo UPL -->
+        <a href="#/" class="nav-brand-group" title="Auditorías Universitarias">
+          <img src="logo.jpg" alt="Logo UPL" class="nav-brand-logo">
+          <div class="nav-brand-text-col">
+            <div class="nav-brand-title">
+              Auditorías Universitarias
+              <span class="nav-badge-rosario">ROSARIO</span>
+            </div>
+            <div class="nav-brand-sub">Universitarios por la Libertad</div>
           </div>
-          <div class="nav-brand-sub">Universitarios por la Libertad</div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Píldoras de Navegación -->
+        <!-- Selector Pesos | USD -->
+        <div class="nav-right-actions">
+          <div class="currency-switch-pill" role="radiogroup" aria-label="Moneda">
+            <button class="curr-btn active" data-curr="ARS" onclick="setCurrency('ARS')">Pesos</button>
+            <button class="curr-btn" data-curr="USD" onclick="setCurrency('USD')">USD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Píldoras de Navegación (Fila Inferior en Mobile / Centro en Desktop) -->
       <nav class="nav-items-center" aria-label="Navegación principal">
         <a href="#/" class="nav-pill-link active" data-route="mapa">Mapa</a>
         <a href="#/rankings" class="nav-pill-link" data-route="rankings">Rankings</a>
-        <a href="#/universidades-kirchneristas" class="nav-pill-link" data-route="kirchneristas">Universidades K</a>
         <a href="#/propuestas" class="nav-pill-link" data-route="propuestas">Propuestas</a>
-        <a href="https://www.argentina.gob.ar/educacion/universidades/informacion/publicaciones/anuarios" target="_blank" rel="noreferrer" class="nav-pill-link" title="Anuarios SPU">
+        <a href="https://www.argentina.gob.ar/educacion/universidades/informacion/publicaciones/anuarios" target="_blank" rel="noreferrer" class="nav-pill-link desktop-only-link" title="Anuarios SPU">
           <span>Anuarios SPU</span>
           <span style="font-size: 0.8rem;" aria-hidden="true">↗</span>
         </a>
       </nav>
-
-      <!-- Selector Pesos | USD -->
-      <div class="nav-right-actions">
-        <div class="currency-switch-pill" role="radiogroup" aria-label="Moneda">
-          <button class="curr-btn active" data-curr="ARS" onclick="setCurrency('ARS')">Pesos</button>
-          <button class="curr-btn" data-curr="USD" onclick="setCurrency('USD')">USD</button>
-        </div>
-      </div>
     </div>
   </header>
 
