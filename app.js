@@ -1,18 +1,19 @@
 /**
  * UPL AUDITORÍAS UNIVERSITARIAS — REGIONAL ROSARIO (SANTA FE / UNR / UTN)
  * Adaptación fiel al frontend oficial UPL:
- * Solo la provincia de Santa Fe en el mapa, inset de Gran Rosario,
+ * Solo la provincia de Santa Fe en el mapa, zoom ampliado de Gran Rosario,
  * y contenido exclusivamente enfocado en las facultades de la UNR y la UTN.
  */
 
 // Estado global de la aplicación
 const AppState = {
-  currentRoute: 'mapa', // 'mapa' | 'rankings' | 'alertas' | 'propuestas'
+  currentRoute: 'mapa', // 'mapa' | 'rankings' | 'propuestas'
   currentMetric: 'cohorte', // 'cohorte' | 'docentes' | 'costo' | 'ceroMaterias' | 'noDocentes' | 'extranjeros'
   currentScope: 'rosario', // 'rosario' | 'gran_rosario' | 'santafe'
   currency: 'ARS', // 'ARS' | 'USD'
   sortDirection: 'asc', // 'asc' (de peor a mejor) | 'desc' (de mejor a peor)
   showSedes: true,
+  isSystemNumbersExpanded: true,
   selectedUniversityId: 'rosario',
   isSearchModalOpen: false,
   isDossierOpen: false,
@@ -42,7 +43,7 @@ const Formatters = {
       return `US$ ${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inUSD)}`;
     } else {
       if (n >= 1e9) {
-        return `$${(n / 1e9).toFixed(1)} mil millones`;
+        return `$${(n / 1e9).toFixed(1)} mil M`;
       }
       if (n >= 1e6) {
         return `$${(n / 1e6).toFixed(1).replace('.', ',')} M`;
@@ -68,12 +69,128 @@ const REGIONAL_PINS = [
   { id: 'psicologia', nombre: 'Fac. de Psicología (UNR)', sigla: 'FPSICO', ciudad: 'Rosario (La Siberia)', x: 456.85, y: 268.40, tieneFicha: true },
   { id: 'agrarias', nombre: 'Fac. de Ciencias Agrarias (UNR)', sigla: 'FCA', ciudad: 'Zavalla (Gran Rosario)', x: 452.20, y: 269.80, tieneFicha: true },
   { id: 'veterinarias', nombre: 'Fac. de Ciencias Veterinarias (UNR)', sigla: 'FCV', ciudad: 'Casilda (Gran Rosario)', x: 448.50, y: 273.20, tieneFicha: true },
-  { id: 'unl', nombre: 'Universidad Nacional del Litoral', sigla: 'UNL', ciudad: 'Santa Fe Capital', x: 455.50, y: 215.30, tieneFicha: true },
-  { id: 'utn_santafe', nombre: 'UTN Facultad Regional Santa Fe', sigla: 'UTN FRSF', ciudad: 'Santa Fe Capital', x: 454.80, y: 215.80, tieneFicha: false },
-  { id: 'unraf', nombre: 'Universidad Nacional de Rafaela', sigla: 'UNRaf', ciudad: 'Rafaela', x: 442.10, y: 208.50, tieneFicha: true },
-  { id: 'utn_rafaela', nombre: 'UTN Facultad Regional Rafaela', sigla: 'UTN FRRa', ciudad: 'Rafaela', x: 441.50, y: 209.10, tieneFicha: false },
-  { id: 'utn_venado', nombre: 'UTN Facultad Regional Venado Tuerto', sigla: 'UTN FRVT', ciudad: 'Venado Tuerto', x: 443.00, y: 282.50, tieneFicha: false },
-  { id: 'utn_reconquista', nombre: 'UTN Facultad Regional Reconquista', sigla: 'UTN FRRq', ciudad: 'Reconquista', x: 468.20, y: 168.50, tieneFicha: false }
+  { id: 'utn_santafe', nombre: 'UTN Facultad Regional Santa Fe', sigla: 'UTN FRSF', ciudad: 'Santa Fe Capital', x: 454.80, y: 215.80, tieneFicha: true },
+  { id: 'utn_rafaela', nombre: 'UTN Facultad Regional Rafaela', sigla: 'UTN FRRa', ciudad: 'Rafaela', x: 441.50, y: 209.10, tieneFicha: true },
+  { id: 'utn_venado', nombre: 'UTN Facultad Regional Venado Tuerto', sigla: 'UTN FRVT', ciudad: 'Venado Tuerto', x: 443.00, y: 282.50, tieneFicha: true },
+  { id: 'utn_reconquista', nombre: 'UTN Facultad Regional Reconquista', sigla: 'UTN FRRq', ciudad: 'Reconquista', x: 468.20, y: 168.50, tieneFicha: true }
+];
+
+// Universidades y Facultades de la Provincia de Santa Fe para el filtro provincial (+ UNL, UNRaf, UTN regionales)
+const PROVINCIA_SANTA_FE_UNIS = [
+  {
+    id: 'unl',
+    nombre: 'Universidad Nacional del Litoral',
+    sigla: 'UNL',
+    ciudad: 'Santa Fe Capital',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 29.8,
+    docentes: 4.8,
+    costo: 48200000,
+    ceroMaterias: 44.5,
+    noDocentes: 38,
+    extranjeros: 2.1,
+    estudiantes2024: 53120,
+    egresados2024: 2640,
+    direccion: 'Bv. Pellegrini 2750, Santa Fe Capital',
+    sitio: 'https://www.unl.edu.ar',
+    alerta: '44,5% de los inscriptos no aprueba materias en el año. La tasa de egreso a 6 años es del 29,8%.'
+  },
+  {
+    id: 'unraf',
+    nombre: 'Universidad Nacional de Rafaela',
+    sigla: 'UNRaf',
+    ciudad: 'Rafaela',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 28.1,
+    docentes: 5.4,
+    costo: 52600000,
+    ceroMaterias: 47.2,
+    noDocentes: 42,
+    extranjeros: 0.8,
+    estudiantes2024: 6850,
+    egresados2024: 215,
+    direccion: 'Bv. Roca 989, Rafaela',
+    sitio: 'https://www.unraf.edu.ar',
+    alerta: 'Ratio de 42 cargos no docentes por cada 100 docentes en nómina activa.'
+  },
+  {
+    id: 'utn_santafe',
+    nombre: 'UTN Facultad Regional Santa Fe',
+    sigla: 'UTN FRSF',
+    ciudad: 'Santa Fe Capital',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 32.5,
+    docentes: 5.0,
+    costo: 43100000,
+    ceroMaterias: 35.8,
+    noDocentes: 28,
+    extranjeros: 0.5,
+    estudiantes2024: 4920,
+    egresados2024: 285,
+    direccion: 'Lavaisse 610, Santa Fe Capital',
+    sitio: 'https://www.frsf.utn.edu.ar',
+    alerta: 'Mejor tasa de graduación en ingenierías de la capital provincial (32,5%).'
+  },
+  {
+    id: 'utn_rafaela',
+    nombre: 'UTN Facultad Regional Rafaela',
+    sigla: 'UTN FRRa',
+    ciudad: 'Rafaela',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 33.1,
+    docentes: 4.9,
+    costo: 45800000,
+    ceroMaterias: 34.2,
+    noDocentes: 26,
+    extranjeros: 0.4,
+    estudiantes2024: 2450,
+    egresados2024: 140,
+    direccion: 'Acuña 49, Rafaela',
+    sitio: 'https://www.frra.utn.edu.ar',
+    alerta: 'Especializada en electromecánica y sistemas en la cuenca productiva santafesina.'
+  },
+  {
+    id: 'utn_venado',
+    nombre: 'UTN Facultad Regional Venado Tuerto',
+    sigla: 'UTN FRVT',
+    ciudad: 'Venado Tuerto',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 29.4,
+    docentes: 5.2,
+    costo: 46500000,
+    ceroMaterias: 38.1,
+    noDocentes: 27,
+    extranjeros: 0.3,
+    estudiantes2024: 1820,
+    egresados2024: 95,
+    direccion: 'Castelli 501, Venado Tuerto',
+    sitio: 'https://www.frvt.utn.edu.ar',
+    alerta: 'Presencia universitaria en el nodo sur agroindustrial de la provincia.'
+  },
+  {
+    id: 'utn_reconquista',
+    nombre: 'UTN Facultad Regional Reconquista',
+    sigla: 'UTN FRRq',
+    ciudad: 'Reconquista',
+    provincia: 'Santa Fe',
+    polo: 'provincial',
+    tasaCohorte: 27.8,
+    docentes: 5.3,
+    costo: 49200000,
+    ceroMaterias: 39.5,
+    noDocentes: 29,
+    extranjeros: 0.2,
+    estudiantes2024: 1410,
+    egresados2024: 72,
+    direccion: 'Calle 44 N° 1000, Reconquista',
+    sitio: 'https://www.frrq.utn.edu.ar',
+    alerta: 'Sede técnica universitaria para el norte santafesino.'
+  }
 ];
 
 // ==========================================
@@ -102,8 +219,6 @@ function handleRouteChange() {
   } else if (segments[0] === 'rankings') {
     AppState.currentRoute = 'rankings';
     if (segments[1]) AppState.currentMetric = segments[1];
-  } else if (segments[0] === 'universidades-kirchneristas' || segments[0] === 'kirchneristas' || segments[0] === 'alertas') {
-    AppState.currentRoute = 'alertas';
   } else if (segments[0] === 'propuestas') {
     AppState.currentRoute = 'propuestas';
   } else if (segments[0] === 'universidad' && segments[1]) {
@@ -150,8 +265,7 @@ function renderCurrentRoute() {
       container.innerHTML = getMapPageTemplate();
       break;
     case 'rankings':
-    case 'alertas':
-      container.innerHTML = getRankingsAlertasTemplate();
+      container.innerHTML = getRankingsPageTemplate();
       initRankingsView();
       break;
     case 'propuestas':
@@ -163,25 +277,24 @@ function renderCurrentRoute() {
 }
 
 // ==========================================
-// 1. VISTA DEL MAPA REGIONAL DE SANTA FE (Exacto a Imagen 2)
+// 1. VISTA DEL MAPA REGIONAL DE SANTA FE
 // ==========================================
 function getMapPageTemplate() {
   return `
     <div class="map-fullscreen-stage">
-      <div class="map-svg-viewport">
-        <!-- SVG Exclusivo de la Provincia de Santa Fe -->
-        ${getSantaFeSVGElement()}
+      <div class="map-dual-hero-layout">
+        <!-- Columna Izquierda: Silueta limpia de Santa Fe (sin trazos externos) -->
+        <div class="map-province-column">
+          ${getSantaFeSVGElement()}
+        </div>
 
-        <!-- Inset Zoom de Gran Rosario (Exacto al recuadro lateral de Imagen 2) -->
-        <div class="map-inset-container">
-          <div style="font-family: var(--font-display); font-size: 0.78rem; font-weight: 800; color: var(--color-upl-amarillo); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-            ZOOM GRAN ROSARIO (UNR & UTN)
-          </div>
+        <!-- Columna Derecha: Inset Cuadrado Ampliado de Gran Rosario -->
+        <div class="map-inset-column">
           ${getGranRosarioInsetSVG()}
         </div>
       </div>
 
-      <!-- Tarjeta Flotante Inferior Izquierda (Exacta a Imagen 2) -->
+      <!-- Tarjeta Flotante Inferior Izquierda -->
       <div class="map-legend-floating-card">
         <p>Tocá una sede para ver sus datos, o buscá una facultad de la región.</p>
 
@@ -217,13 +330,13 @@ function getMapPageTemplate() {
   `;
 }
 
-// SVG Vectorial de la Provincia de Santa Fe
+// SVG Vectorial Limpio de la Provincia de Santa Fe
 function getSantaFeSVGElement() {
   const mapData = ARGENTINA_MAP;
   const santafe = (mapData && mapData.provincias) ? mapData.provincias.find(p => p.nombre === 'Santa Fe') : null;
   const santaFePath = santafe ? santafe.d : 'M434.77,156.7L429.17,210.73L433.69,215.25L426.16,237.64L435.62,269.6L414.06,301.06L434.55,300.39L453.49,281.12L460.81,284.57L465.76,274.66L457.15,267.99L454.57,241.51L477.39,215.25L476.74,209.44L478.9,182.1L484.71,179.08L488.58,157.77L491.6,158.42L492.24,154.54L434.77,156.7Z';
 
-  // Pines de universidades de Santa Fe y Rosario
+  // Pines de universidades de Santa Fe y Rosario (UNR & UTN)
   const pines = REGIONAL_PINS.map(pin => {
     const isRosarioCentral = pin.id === 'rosario';
     const isUTN = pin.id === 'utn_rosario';
@@ -247,21 +360,25 @@ function getSantaFeSVGElement() {
 
   return `
     <svg viewBox="405 145 95 165" class="santafe-svg-root" xmlns="http://www.w3.org/2000/svg">
-      <!-- Silueta Oficial de Santa Fe -->
+      <!-- Silueta Oficial de Santa Fe: Trazo limpio y exacto -->
       <path 
         d="${santaFePath}" 
         class="santafe-shape" 
         id="santafe-province" 
       />
 
-      <!-- Río Paraná (Borde Oriental de Santa Fe) -->
-      <path d="M 491.6,158.4 Q 480,210 477.4,215.2 Q 454.6,241.5 457.1,268 L 465.8,274.7 L 460.8,284.6" fill="none" stroke="rgba(143,183,255,0.4)" stroke-width="1.2" stroke-linecap="round" />
+      <!-- Río Paraná: Borde oriental natural de la provincia (Limpio, continuo y sin sobresalir) -->
+      <path 
+        d="M 492.24,154.54 L 491.6,158.42 L 488.58,157.77 L 484.71,179.08 L 478.9,182.1 L 476.74,209.44 L 477.39,215.25 L 454.57,241.51 L 457.15,267.99 L 465.76,274.66 L 460.81,284.57" 
+        fill="none" 
+        stroke="rgba(143,183,255,0.75)" 
+        stroke-width="1.8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+      />
+      <text x="473" y="246" fill="rgba(143,183,255,0.7)" font-size="3.2" font-family="'Inter', sans-serif" font-weight="700" letter-spacing="0.5" transform="rotate(78 473,246)">RÍO PARANÁ</text>
 
-      <!-- Líneas de Departamentos interiores sugeridas -->
-      <line x1="426.2" y1="237.6" x2="455.5" y2="242" stroke="rgba(23,27,50,0.5)" stroke-width="0.5" stroke-dasharray="2,2" />
-      <line x1="435.6" y1="269.6" x2="457.1" y2="268" stroke="rgba(23,27,50,0.5)" stroke-width="0.5" stroke-dasharray="2,2" />
-
-      <!-- Destacado del Departamento Rosario -->
+      <!-- Destacado del Departamento Rosario y Gran Rosario -->
       <circle cx="456.4" cy="267.6" r="6" fill="rgba(250,207,59,0.18)" stroke="rgba(250,207,59,0.5)" stroke-width="0.7" />
 
       <!-- Capa de Pines Universitarios -->
@@ -272,56 +389,167 @@ function getSantaFeSVGElement() {
   `;
 }
 
-// Inset de Gran Rosario (Idéntico al polígono lateral de Imagen 2)
+// Inset Cuadrado Ampliado de Gran Rosario (Limpio, con río contenido y todas las 14 sedes)
 function getGranRosarioInsetSVG() {
   return `
-    <svg viewBox="0 0 280 280" class="inset-svg-canvas" xmlns="http://www.w3.org/2000/svg">
-      <!-- Polígono de fondo del Inset -->
-      <polygon points="140,8 268,74 268,206 140,272 12,206 12,74" fill="#34406f" stroke="rgba(255,255,249,0.45)" stroke-width="2" />
+    <svg viewBox="0 0 460 480" class="inset-svg-canvas" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Clip para contener todo estrictamente dentro del card cuadrado sin sobresalir -->
+        <clipPath id="squareCardClip">
+          <rect x="4" y="4" width="452" height="472" rx="20" />
+        </clipPath>
+      </defs>
 
-      <!-- Costa del Río Paraná -->
-      <path d="M 195,50 Q 235,110 220,175 Q 242,225 258,255" stroke="#1c3066" stroke-width="18" fill="none" opacity="0.85" />
-      <text x="238" y="150" fill="rgba(143,183,255,0.45)" font-size="9" font-family="'Inter', sans-serif" transform="rotate(78 238,150)">RÍO PARANÁ</text>
+      <!-- Contenedor Base Cuadrado con bordes redondeados -->
+      <rect x="4" y="4" width="452" height="472" rx="20" fill="rgba(24, 30, 60, 0.94)" stroke="rgba(255, 255, 249, 0.16)" stroke-width="1.5" />
 
-      <!-- Bv. Oroño y Av. Pellegrini -->
-      <line x1="40" y1="130" x2="210" y2="130" stroke="rgba(255,255,249,0.15)" stroke-width="1.5" stroke-dasharray="3,3" />
-      <line x1="140" y1="30" x2="140" y2="240" stroke="rgba(255,255,249,0.15)" stroke-width="1.5" stroke-dasharray="3,3" />
+      <g clip-path="url(#squareCardClip)">
+        <!-- Franja Costera del Río Paraná contenida dentro del borde -->
+        <path d="M 405,4 Q 425,140 415,250 Q 428,370 418,476 L 456,476 L 456,4 Z" fill="#1b2a52" opacity="0.7" />
+        <path d="M 405,4 Q 425,140 415,250 Q 428,370 418,476" fill="none" stroke="rgba(143,183,255,0.4)" stroke-width="2.5" stroke-linecap="round" />
+        <text x="435" y="240" fill="rgba(143,183,255,0.55)" font-size="8.5" font-family="'Inter', sans-serif" font-weight="700" letter-spacing="2" transform="rotate(90 435,240)">RÍO PARANÁ</text>
 
-      <!-- Nodos de las Facultades de Rosario (UNR & UTN) -->
-      <!-- 1. La Siberia (FCEIA, FAPyD, FCPolit, Psicología) -->
-      <circle cx="165" cy="190" r="10" fill="#facf3b" stroke="#121833" stroke-width="2" onclick="openDossierById('ingenieria')" style="cursor: pointer;">
-        <title>La Siberia (CUR): FCEIA, FAPyD, FCPolit, Psicología</title>
-      </circle>
-      <text x="165" y="214" text-anchor="middle" fill="#fffff9" font-size="9" font-weight="700">La Siberia</text>
+        <!-- Cabecera del Card -->
+        <text x="210" y="28" text-anchor="middle" fill="#facf3b" font-family="'Baloo 2', sans-serif" font-size="13" font-weight="800" letter-spacing="0.5">POLO UNIVERSITARIO ROSARIO Y REGIÓN</text>
+        <text x="210" y="43" text-anchor="middle" fill="rgba(255,255,249,0.6)" font-family="'Inter', sans-serif" font-size="8.5">12 Facultades UNR · Rectorado Central · UTN FRRo</text>
 
-      <!-- 2. Polo Centro (Derecho, Económicas, Humanidades, Sede UNR) -->
-      <circle cx="135" cy="130" r="9" fill="#facf3b" stroke="#121833" stroke-width="2" onclick="openDossierById('derecho')" style="cursor: pointer;">
-        <title>Polo Centro: Derecho, Económicas, Humanidades, Sede UNR</title>
-      </circle>
-      <text x="135" y="118" text-anchor="middle" fill="#fffff9" font-size="9" font-weight="700">Polo Centro</text>
+        <!-- 1. ZONA GRAN ROSARIO (Oeste) -->
+        <rect x="14" y="56" width="108" height="376" rx="12" fill="rgba(36, 44, 80, 0.45)" stroke="rgba(228, 184, 98, 0.25)" />
+        <text x="68" y="74" text-anchor="middle" fill="#e4b862" font-family="'Baloo 2', sans-serif" font-size="10" font-weight="800">GRAN ROSARIO</text>
+        <text x="68" y="86" text-anchor="middle" fill="rgba(255,255,249,0.45)" font-size="7.5" font-family="'Inter', sans-serif">Ruta 33 / Oeste</text>
 
-      <!-- 3. Polo Salud (Medicina, Odontología, Bioquímica) -->
-      <circle cx="100" cy="90" r="9" fill="#8fb7ff" stroke="#121833" stroke-width="2" onclick="openDossierById('medicina')" style="cursor: pointer;">
-        <title>Polo Salud: Medicina, Odontología, Bioquímica</title>
-      </circle>
-      <text x="75" y="80" text-anchor="end" fill="#8fb7ff" font-size="9" font-weight="700">Polo Salud</text>
+        <!-- FCA (Agrarias) Zavalla -->
+        <g class="inset-node-group" onclick="openDossierById('agrarias')">
+          <circle cx="68" cy="155" r="15" fill="#facf3b" stroke="#0b0d1c" stroke-width="2" />
+          <text x="68" y="160" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="9" font-weight="800">FCA</text>
+          <text x="68" y="184" text-anchor="middle" fill="#fffff9" font-size="8.5" font-weight="700" class="node-label">Cs. Agrarias</text>
+          <text x="68" y="196" text-anchor="middle" fill="#e4b862" font-size="7.5">Zavalla</text>
+          <title>Facultad de Ciencias Agrarias (UNR) — Zavalla</title>
+        </g>
 
-      <!-- 4. UTN Facultad Regional Rosario (Zeballos 1341) -->
-      <circle cx="118" cy="155" r="8" fill="#8fd19e" stroke="#121833" stroke-width="1.8" onclick="openDossierById('utn_rosario')" style="cursor: pointer;">
-        <title>UTN FRRo (Zeballos 1341)</title>
-      </circle>
-      <text x="96" y="168" text-anchor="end" fill="#8fd19e" font-size="8" font-weight="700">UTN FRRo</text>
+        <!-- FCV (Veterinarias) Casilda -->
+        <g class="inset-node-group" onclick="openDossierById('veterinarias')">
+          <circle cx="68" cy="285" r="15" fill="#facf3b" stroke="#0b0d1c" stroke-width="2" />
+          <text x="68" y="290" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="9" font-weight="800">FCV</text>
+          <text x="68" y="314" text-anchor="middle" fill="#fffff9" font-size="8.5" font-weight="700" class="node-label">Cs. Veterinarias</text>
+          <text x="68" y="326" text-anchor="middle" fill="#e4b862" font-size="7.5">Casilda</text>
+          <title>Facultad de Ciencias Veterinarias (UNR) — Casilda</title>
+        </g>
 
-      <!-- 5. Gran Rosario: Zavalla (Agrarias) & Casilda (Veterinarias) -->
-      <circle cx="45" cy="175" r="7" fill="#e4b862" stroke="#121833" stroke-width="1.5" onclick="openDossierById('agrarias')" style="cursor: pointer;">
-        <title>FCA Zavalla (Agrarias)</title>
-      </circle>
-      <text x="45" y="196" text-anchor="middle" fill="#e4b862" font-size="8" font-weight="700">Zavalla</text>
+        <!-- 2. ZONA POLO SALUD (Norte) -->
+        <rect x="130" y="56" width="265" height="92" rx="12" fill="rgba(36, 44, 80, 0.45)" stroke="rgba(143, 183, 255, 0.28)" />
+        <text x="142" y="73" fill="#8fb7ff" font-family="'Baloo 2', sans-serif" font-size="9.5" font-weight="800">POLO SALUD</text>
+        <text x="215" y="73" fill="rgba(255,255,249,0.4)" font-size="7.5" font-family="'Inter', sans-serif">Santa Fe y Francia</text>
 
-      <circle cx="35" cy="225" r="7" fill="#e4b862" stroke="#121833" stroke-width="1.5" onclick="openDossierById('veterinarias')" style="cursor: pointer;">
-        <title>FCV Casilda (Veterinarias)</title>
-      </circle>
-      <text x="35" y="246" text-anchor="middle" fill="#e4b862" font-size="8" font-weight="700">Casilda</text>
+        <!-- FCM (Medicina) -->
+        <g class="inset-node-group" onclick="openDossierById('medicina')">
+          <circle cx="170" cy="106" r="14" fill="#facf3b" stroke="#0b0d1c" stroke-width="2" />
+          <text x="170" y="111" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8.5" font-weight="800">FCM</text>
+          <text x="170" y="132" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Medicina</text>
+          <title>Facultad de Ciencias Médicas (Santa Fe 3100)</title>
+        </g>
+
+        <!-- FBIOyF (Bioquímica) -->
+        <g class="inset-node-group" onclick="openDossierById('bioquimicas')">
+          <circle cx="262" cy="106" r="14" fill="#facf3b" stroke="#0b0d1c" stroke-width="2" />
+          <text x="262" y="111" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">FBIO</text>
+          <text x="262" y="132" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Bioquímica</text>
+          <title>Facultad de Cs. Bioquímicas y Farmacéuticas (Suipacha 531)</title>
+        </g>
+
+        <!-- FODONTO (Odontología) -->
+        <g class="inset-node-group" onclick="openDossierById('odontologia')">
+          <circle cx="355" cy="106" r="14" fill="#facf3b" stroke="#0b0d1c" stroke-width="2" />
+          <text x="355" y="111" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">ODO</text>
+          <text x="355" y="132" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Odontología</text>
+          <title>Facultad de Odontología (Santa Fe 3160)</title>
+        </g>
+
+        <!-- 3. ZONA POLO CENTRO & UTN -->
+        <rect x="130" y="156" width="265" height="130" rx="12" fill="rgba(36, 44, 80, 0.45)" stroke="rgba(228, 184, 98, 0.28)" />
+        <text x="142" y="173" fill="#e4b862" font-family="'Baloo 2', sans-serif" font-size="9.5" font-weight="800">POLO CENTRO & UTN</text>
+        <text x="262" y="173" fill="rgba(255,255,249,0.4)" font-size="7.5" font-family="'Inter', sans-serif">Bv. Oroño / Zeballos</text>
+
+        <!-- FDER (Derecho) -->
+        <g class="inset-node-group" onclick="openDossierById('derecho')">
+          <circle cx="170" cy="202" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="170" y="206" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">FDER</text>
+          <text x="170" y="226" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Derecho</text>
+          <title>Facultad de Derecho (Córdoba 2020)</title>
+        </g>
+
+        <!-- FCEyE (Económicas) -->
+        <g class="inset-node-group" onclick="openDossierById('economicas')">
+          <circle cx="262" cy="202" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="262" y="206" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="7.5" font-weight="800">FCEyE</text>
+          <text x="262" y="226" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Económicas</text>
+          <title>Facultad de Cs. Económicas y Estadística (Bv. Oroño 1261)</title>
+        </g>
+
+        <!-- FHYA (Humanidades) -->
+        <g class="inset-node-group" onclick="openDossierById('humanidades')">
+          <circle cx="355" cy="202" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="355" y="206" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">FHYA</text>
+          <text x="355" y="226" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Humanidades</text>
+          <title>Facultad de Humanidades y Artes (Entre Ríos 758)</title>
+        </g>
+
+        <!-- Rectorado UNR -->
+        <g class="inset-node-group" onclick="openDossierById('rosario')">
+          <circle cx="190" cy="256" r="12" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="190" y="260" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="7.5" font-weight="800">UNR</text>
+          <text x="210" y="260" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Rectorado Maipú</text>
+          <title>Sede de Gobierno UNR (Maipú 1065)</title>
+        </g>
+
+        <!-- UTN FRRo -->
+        <g class="inset-node-group" onclick="openDossierById('utn_rosario')">
+          <circle cx="318" cy="256" r="14" fill="#8fd19e" stroke="#0b0d1c" stroke-width="2" />
+          <text x="318" y="261" text-anchor="middle" fill="#0b0d1c" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">UTN</text>
+          <text x="340" y="260" fill="#8fd19e" font-size="8.5" font-weight="800" class="node-label">UTN FRRo</text>
+          <title>UTN Facultad Regional Rosario (E. Zeballos 1341)</title>
+        </g>
+
+        <!-- 4. ZONA LA SIBERIA / CUR (Sur) -->
+        <rect x="130" y="294" width="265" height="138" rx="12" fill="rgba(36, 44, 80, 0.45)" stroke="rgba(250, 207, 59, 0.28)" />
+        <text x="142" y="311" fill="#facf3b" font-family="'Baloo 2', sans-serif" font-size="9.5" font-weight="800">LA SIBERIA (CUR)</text>
+        <text x="245" y="311" fill="rgba(255,255,249,0.4)" font-size="7.5" font-family="'Inter', sans-serif">Riobamba y Berutti</text>
+
+        <!-- FCEIA (Ingeniería) -->
+        <g class="inset-node-group" onclick="openDossierById('ingenieria')">
+          <circle cx="195" cy="342" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="195" y="346" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="7.5" font-weight="800">FCEIA</text>
+          <text x="195" y="365" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Ingeniería</text>
+          <title>Facultad de Cs. Exactas, Ingeniería y Agrimensura (Pellegrini 250 / CUR)</title>
+        </g>
+
+        <!-- FAPyD (Arquitectura) -->
+        <g class="inset-node-group" onclick="openDossierById('arquitectura')">
+          <circle cx="330" cy="342" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="330" y="346" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="7.5" font-weight="800">FAPyD</text>
+          <text x="330" y="365" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Arquitectura</text>
+          <title>Facultad de Arquitectura, Planeamiento y Diseño (CUR)</title>
+        </g>
+
+        <!-- FCPolit (Ciencia Política) -->
+        <g class="inset-node-group" onclick="openDossierById('politica')">
+          <circle cx="195" cy="392" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="195" y="396" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="7.5" font-weight="800">FCP</text>
+          <text x="195" y="414" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Cs. Política</text>
+          <title>Facultad de Ciencia Política y RR.II. (CUR)</title>
+        </g>
+
+        <!-- FPSICO (Psicología) -->
+        <g class="inset-node-group" onclick="openDossierById('psicologia')">
+          <circle cx="330" cy="392" r="13" fill="#facf3b" stroke="#0b0d1c" stroke-width="1.8" />
+          <text x="330" y="396" text-anchor="middle" fill="#121833" font-family="'Baloo 2', sans-serif" font-size="8" font-weight="800">PSI</text>
+          <text x="330" y="414" text-anchor="middle" fill="#fffff9" font-size="8" font-weight="700" class="node-label">Psicología</text>
+          <title>Facultad de Psicología (CUR)</title>
+        </g>
+
+        <!-- Pie descriptivo -->
+        <text x="210" y="456" text-anchor="middle" fill="rgba(255,255,249,0.5)" font-size="9" font-family="'Inter', sans-serif">Hacé clic en cualquier nodo para abrir su ficha de auditoría oficial</text>
+      </g>
     </svg>
   `;
 }
@@ -335,9 +563,9 @@ function toggleSedesVisibility() {
 }
 
 // ==========================================
-// 2. VISTA DE RANKINGS Y ALERTAS (Exacto a Imagen 3)
+// 2. VISTA DE RANKINGS Y RESUMEN GENERAL
 // ==========================================
-function getRankingsAlertasTemplate() {
+function getRankingsPageTemplate() {
   const metricDescriptions = {
     cohorte: 'Egresados 2024 sobre nuevos inscriptos 2018 (ventana de 6 años). Mayor = mejor.',
     docentes: 'Estudiantes activos por cargo docente en nómina. Menor = mejor atención pedagógica.',

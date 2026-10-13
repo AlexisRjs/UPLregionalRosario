@@ -6,10 +6,10 @@
    ========================================================================== */
 
 :root {
-  --color-upl-bg: #0b0d1c;
-  --color-upl-bg-darker: #070814;
-  --color-upl-surface: #171b32;
-  --color-upl-surface-glass: rgba(23, 27, 50, 0.72);
+  --color-upl-bg: #171b32;
+  --color-upl-bg-darker: #13172c;
+  --color-upl-surface: #1b2142;
+  --color-upl-surface-glass: rgba(27, 33, 66, 0.75);
   
   --color-upl-principal: #242c50;
   --color-upl-principal-light: #34406f;
@@ -20,18 +20,19 @@
   --color-upl-resaltador: #e4b862;
   
   --color-upl-crema: #fffff9;
-  --color-upl-crema-muted: rgba(255, 255, 249, 0.65);
-  --color-upl-crema-faint: rgba(255, 255, 249, 0.35);
-  --color-upl-crema-subtle: rgba(255, 255, 249, 0.08);
+  --color-upl-crema-muted: rgba(255, 255, 249, 0.72);
+  --color-upl-crema-faint: rgba(255, 255, 249, 0.45);
+  --color-upl-crema-subtle: rgba(255, 255, 249, 0.1);
   
-  --color-map-province: #4a5580;
-  --color-map-stroke: #2a3360;
-  --color-map-hover: #5d6b9f;
+  --color-map-province: #34406f;
+  --color-map-stroke: #1c2240;
+  --color-map-hover: #41508a;
   --color-map-active: #facf3b;
   
   --color-danger: #e2574c;
   --color-danger-soft: #ff8a7a;
-  --color-danger-bg: rgba(226, 87, 76, 0.15);
+  --color-danger-bg: rgba(226, 87, 76, 0.10);
+  --color-danger-border: rgba(226, 87, 76, 0.40);
   
   --color-success: #8fd19e;
   --color-info: #8fb7ff;
@@ -70,15 +71,24 @@ html {
   overflow-x: hidden;
 }
 
+/* Fondo oficial idéntico al bundle original de UPL */
 body {
   min-height: 100vh;
   position: relative;
-  background-color: var(--color-upl-bg);
+  color: var(--color-upl-crema);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: #171b32;
   background-image: 
-    radial-gradient(circle at 12% 20%, rgba(55, 25, 89, 0.38) 0%, transparent 45%),
-    radial-gradient(circle at 88% 45%, rgba(36, 44, 80, 0.45) 0%, transparent 50%),
-    radial-gradient(circle at 50% 92%, rgba(228, 184, 98, 0.08) 0%, transparent 40%);
+    radial-gradient(60rem 40rem at 8% -10%, rgba(228, 184, 98, 0.16), transparent 60%),
+    radial-gradient(50rem 45rem at 110% 10%, rgba(55, 25, 89, 0.55), transparent 60%),
+    radial-gradient(70rem 60rem at 50% 120%, rgba(36, 44, 80, 0.9), transparent 60%),
+    linear-gradient(160deg, #1b2040 0%, #20264a 40%, #241a3d 100%);
+  background-position: 0 0;
+  background-repeat: repeat;
+  background-size: auto;
   background-attachment: fixed;
+  margin: 0;
   overflow-x: hidden;
 }
 
@@ -133,7 +143,7 @@ img {
   background: var(--color-upl-resaltador);
 }
 
-/* Blobs de Fondo con Animación 'drift' */
+/* Blobs de Fondo muy sutiles para no sobrecargar el azul */
 .blob-container {
   position: fixed;
   inset: 0;
@@ -144,52 +154,52 @@ img {
 .blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(75px);
+  filter: blur(85px);
   pointer-events: none;
-  opacity: 0.45;
-  animation: 22s ease-in-out infinite alternate drift;
+  opacity: 0.12;
+  animation: 26s ease-in-out infinite alternate drift;
 }
 .blob-1 {
-  width: 38rem;
-  height: 38rem;
-  background-color: rgba(55, 25, 89, 0.5);
-  top: -10rem;
-  left: -10rem;
+  width: 42rem;
+  height: 42rem;
+  background-color: rgba(55, 25, 89, 0.4);
+  top: -12rem;
+  left: -12rem;
 }
 .blob-2 {
-  width: 30rem;
-  height: 30rem;
-  background-color: rgba(228, 184, 98, 0.18);
-  bottom: -5rem;
-  right: -5rem;
-  animation-delay: -7s;
+  width: 35rem;
+  height: 35rem;
+  background-color: rgba(228, 184, 98, 0.2);
+  bottom: -6rem;
+  right: -6rem;
+  animation-delay: -8s;
 }
 
 @keyframes drift {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(35px, 25px) scale(1.06); }
-  100% { transform: translate(-25px, 40px) scale(0.96); }
+  50% { transform: translate(25px, 20px) scale(1.04); }
+  100% { transform: translate(-20px, 30px) scale(0.96); }
 }
 
-/* Clases Glass Oficiales UPL */
+/* Clases Glass Oficiales UPL - Tonos suaves y azules */
 .glass {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  background: rgba(255, 255, 249, 0.06);
+  background: rgba(255, 255, 249, 0.08);
   border: 1px solid rgba(255, 255, 249, 0.12);
-  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.35);
+  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.25);
 }
 .glass-flat {
   background: rgba(255, 255, 249, 0.08);
   border: 1px solid rgba(255, 255, 249, 0.12);
-  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.35);
+  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.25);
 }
 .glass-strong {
   -webkit-backdrop-filter: blur(22px);
   backdrop-filter: blur(22px);
-  background: rgba(23, 27, 50, 0.75);
+  background: rgba(27, 33, 66, 0.85);
   border: 1px solid rgba(255, 255, 249, 0.14);
-  box-shadow: 0 20px 60px rgba(5, 4, 20, 0.5);
+  box-shadow: 0 20px 60px rgba(5, 4, 20, 0.45);
 }
 .glass-chip {
   -webkit-backdrop-filter: blur(10px);
@@ -568,17 +578,154 @@ img {
   margin-bottom: 1.5rem;
 }
 
-/* Alerta roja/violeta idéntica */
+/* Alerta roja/violeta suave idéntica al bundle */
 .k-alert-box {
-  background: rgba(55, 25, 89, 0.4);
-  border: 1px solid rgba(226, 87, 76, 0.4);
+  background: rgba(226, 87, 76, 0.10);
+  border: 1px solid rgba(226, 87, 76, 0.38);
   border-radius: var(--radius-md);
-  padding: 1.25rem 1.5rem;
+  padding: 1.15rem 1.4rem;
   margin-bottom: 1.75rem;
-  color: rgba(255, 255, 249, 0.9);
+  color: rgba(255, 255, 249, 0.92);
   font-size: 0.92rem;
   line-height: 1.55;
-  box-shadow: 0 8px 30px rgba(55, 25, 89, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   CARD: EL SISTEMA EN NÚMEROS (Exacto al Screenshot de Rankings)
+   ========================================================================== */
+.system-numbers-card {
+  background: rgba(255, 255, 249, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 249, 0.12);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 8px 30px rgba(10, 8, 30, 0.35);
+}
+
+.system-numbers-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 249, 0.08);
+  background: rgba(27, 33, 66, 0.5);
+}
+.system-numbers-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--color-upl-crema);
+}
+.system-numbers-meta {
+  font-size: 0.82rem;
+  color: var(--color-upl-crema-muted);
+}
+
+.system-kpis-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid rgba(255, 255, 249, 0.08);
+}
+.system-kpi-col {
+  padding: 1.25rem 1.4rem;
+  border-right: 1px solid rgba(255, 255, 249, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+.system-kpi-col:last-child {
+  border-right: none;
+}
+.system-kpi-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-danger-soft);
+  margin-bottom: 0.5rem;
+}
+.system-kpi-label.gold {
+  color: var(--color-upl-amarillo);
+}
+.system-kpi-val {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--color-upl-crema);
+  margin-bottom: 0.5rem;
+}
+.system-kpi-val.coral {
+  color: var(--color-danger-soft);
+}
+.system-kpi-desc {
+  font-size: 0.76rem;
+  color: var(--color-upl-crema-muted);
+  line-height: 1.4;
+}
+
+.system-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  background: rgba(23, 27, 50, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 249, 0.08);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-upl-amarillo);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+.system-toggle-row:hover {
+  background: rgba(250, 207, 59, 0.12);
+}
+
+.system-expandable-section {
+  padding: 1.5rem;
+  background: rgba(19, 23, 44, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.system-kpis-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.system-charts-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.chart-box-card {
+  background: rgba(27, 33, 66, 0.7);
+  border: 1px solid rgba(255, 255, 249, 0.08);
+  border-radius: 12px;
+  padding: 1.15rem;
+}
+.chart-box-title {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-upl-amarillo);
+  margin-bottom: 0.85rem;
+}
+.chart-box-caption {
+  font-size: 0.75rem;
+  color: var(--color-upl-crema-faint);
+  line-height: 1.45;
+  margin-top: 0.5rem;
 }
 
 /* Barra de Filtro de Ámbito */
