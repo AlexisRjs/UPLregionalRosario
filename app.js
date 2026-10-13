@@ -577,124 +577,206 @@ function getRankingsPageTemplate() {
 
   return `
     <div class="rankings-page-layout">
-      <!-- Título de Página -->
-      <h1 class="k-page-title">Auditorías Universitarias — Región Rosario</h1>
-      <p class="k-page-desc">
-        Relevamiento oficial de la Secretaría de Políticas Universitarias (SPU) y auditorías de la AGN para las 12 facultades de la Universidad Nacional de Rosario (UNR), la Facultad Regional Rosario de la UTN y el polo universitario de Santa Fe.
-      </p>
+      <!-- Título de Página y Filtros de Ámbito Geográfico -->
+      <div style="margin-bottom: 1.25rem;">
+        <h1 class="k-page-title" style="margin-bottom: 0.35rem;">Rankings</h1>
+        <p class="k-page-desc" style="margin-bottom: 1rem;">
+          Auditoría comparativa de las facultades e instituciones cargadas de la región Rosario y la provincia de Santa Fe (UNR y UTN) con datos oficiales del Anuario de la SPU.
+        </p>
 
-      <!-- Alerta Roja/Violeta Oficial (Exacta a Imagen 3) -->
-      <div class="k-alert-box">
-        La UNR presenta un padrón con 55.030 inscriptos que no rindieron ninguna materia en 2024 (52,7%) y una caída histórica en graduados en Derecho (-85,9%) y Arquitectura (-86%), mientras el gasto en publicidad se multiplicó por 2,7 en pesos corrientes ($68,3 millones en 2025). La UTN Facultad Regional Rosario, con un tercio del costo presupuestario por alumno, supera la media de egreso de la UNR.
-      </div>
-
-      <!-- Barra de Filtro de Ámbito -->
-      <div class="k-filter-header-bar">
-        <span class="k-vs-title">UNR vs. UTN & Sistema Regional</span>
-        
-        <div class="scope-dropdown-pill" onclick="cycleScopeFilter()">
-          <span>📍</span>
-          <span>Ver: <strong>${getScopeLabel()}</strong></span>
-          <span style="font-size: 0.7rem;">▼</span>
+        <!-- Filtros de Ámbito Geográfico Claros e Interactivos -->
+        <div class="scope-pills-row" role="radiogroup" aria-label="Filtro de ámbito geográfico">
+          <button class="scope-pill-btn ${AppState.currentScope === 'rosario' ? 'active' : ''}" onclick="setScopeFilter('rosario')">
+            <span>📍</span> Región Rosario (UNR & UTN)
+          </button>
+          <button class="scope-pill-btn ${AppState.currentScope === 'gran_rosario' ? 'active' : ''}" onclick="setScopeFilter('gran_rosario')">
+            <span>🌾</span> Gran Rosario (Zavalla / Casilda)
+          </button>
+          <button class="scope-pill-btn ${AppState.currentScope === 'santafe' ? 'active' : ''}" onclick="setScopeFilter('santafe')">
+            <span>🏛️</span> Provincia de Santa Fe (+ UNL, UNRaf, UTN)
+          </button>
         </div>
       </div>
 
-      <!-- Tarjeta Comparativa 'VS' Oficial (5 Columnas Idénticas a Imagen 3) -->
-      <div class="vs-comparison-card">
-        <div class="vs-columns-grid">
-          <!-- Columna 1: Tasa de Cohorte -->
-          <div class="vs-col-item">
-            <div class="vs-col-header">TASA DE COHORTE (EGRESO)</div>
-            <div class="vs-numbers-row">
-              <div class="vs-subgroup">
-                <span class="vs-sub-lbl">UNR Rosario (12 Fac.)</span>
-                <span class="vs-sub-num peor">24,7%</span>
-                <span class="vs-badge-peor">▼ peor</span>
-              </div>
-              <span class="vs-middle-vs">vs</span>
-              <div class="vs-subgroup" style="text-align: right;">
-                <span class="vs-sub-lbl">UTN FRRo</span>
-                <span class="vs-sub-num">31,0%</span>
-              </div>
+      <!-- Card Oficial: EL SISTEMA EN NÚMEROS (Filtrado según las instituciones cargadas) -->
+      ${(() => {
+        const stats = getSystemNumbersData(AppState.currentScope);
+        return `
+        <div class="system-numbers-card">
+          <div class="system-numbers-header">
+            <div class="system-numbers-title">El sistema en números</div>
+            <div class="system-numbers-meta">${stats.metaText}</div>
+          </div>
+
+          <!-- 4 Top KPIs Principales -->
+          <div class="system-kpis-grid-4">
+            <!-- KPI 1 -->
+            <div class="system-kpi-col">
+              <div class="system-kpi-label">NO SE RECIBE A TIEMPO</div>
+              <div class="system-kpi-val coral">${stats.noSeRecibeNum} <span style="font-size: 1.1rem; font-weight: 700; color: rgba(255,255,249,0.85);">de cada 100</span></div>
+              <div class="system-kpi-desc">${stats.noSeRecibeDesc}</div>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="system-kpi-col">
+              <div class="system-kpi-label">ESTUDIANTES SIN MATERIAS</div>
+              <div class="system-kpi-val coral">${stats.sinMateriasNum}</div>
+              <div class="system-kpi-desc">${stats.sinMateriasDesc}</div>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="system-kpi-col">
+              <div class="system-kpi-label gold">COSTO POR GRADUADO</div>
+              <div class="system-kpi-val">${Formatters.currency(stats.costoGraduadoNum)}</div>
+              <div class="system-kpi-desc">${stats.costoGraduadoDesc}</div>
+            </div>
+
+            <!-- KPI 4 -->
+            <div class="system-kpi-col">
+              <div class="system-kpi-label gold">ESTUDIANTES ACTIVOS POR DOCENTE</div>
+              <div class="system-kpi-val">${stats.docentesNum}</div>
+              <div class="system-kpi-desc">${stats.docentesDesc}</div>
             </div>
           </div>
 
-          <!-- Columna 2: Estudiantes Activos por Docente -->
-          <div class="vs-col-item">
-            <div class="vs-col-header">ESTUDIANTES ACTIVOS POR DOCENTE</div>
-            <div class="vs-numbers-row">
-              <div class="vs-subgroup">
-                <span class="vs-sub-lbl">UNR Rosario</span>
-                <span class="vs-sub-num">4,0 x 1</span>
-              </div>
-              <span class="vs-middle-vs">vs</span>
-              <div class="vs-subgroup" style="text-align: right;">
-                <span class="vs-sub-lbl">UTN FRRo</span>
-                <span class="vs-sub-num peor">5,1 x 1</span>
-                <span class="vs-badge-peor">▼ peor</span>
-              </div>
-            </div>
+          <!-- Botón Desplegable Ver menos / Ver más -->
+          <div class="system-toggle-row" onclick="toggleSystemNumbers()">
+            <span>${AppState.isSystemNumbersExpanded ? 'Ver menos ⌃' : 'Ver más ⌄'}</span>
           </div>
 
-          <!-- Columna 3: Costo por Graduado -->
-          <div class="vs-col-item">
-            <div class="vs-col-header">COSTO POR GRADUADO</div>
-            <div class="vs-numbers-row">
-              <div class="vs-subgroup">
-                <span class="vs-sub-lbl">UNR Rosario</span>
-                <span class="vs-sub-num peor">${Formatters.currency(61546057)}</span>
-                <span class="vs-badge-peor">▼ peor</span>
-              </div>
-              <span class="vs-middle-vs">vs</span>
-              <div class="vs-subgroup" style="text-align: right;">
-                <span class="vs-sub-lbl">UTN FRRo</span>
-                <span class="vs-sub-num">${Formatters.currency(44200000)}</span>
-              </div>
-            </div>
-          </div>
+          <!-- Sección Desplegable con KPIs Secundarios y Gráficos -->
+          ${AppState.isSystemNumbersExpanded ? `
+            <div class="system-expandable-section">
+              <!-- 3 KPIs Secundarios -->
+              <div class="system-kpis-grid-3">
+                <div class="chart-box-card">
+                  <div class="system-kpi-label">GASTO EN ESTUDIANTES EXTRANJEROS</div>
+                  <div class="system-kpi-val coral">${Formatters.currency(stats.extranjerosGasto)}</div>
+                  <div class="system-kpi-desc">${stats.extranjerosDesc}</div>
+                </div>
 
-          <!-- Columna 4: Estudiantes sin Materias -->
-          <div class="vs-col-item">
-            <div class="vs-col-header">ESTUDIANTES SIN MATERIAS</div>
-            <div class="vs-numbers-row">
-              <div class="vs-subgroup">
-                <span class="vs-sub-lbl">UNR Rosario</span>
-                <span class="vs-sub-num peor">52,7%</span>
-                <span class="vs-badge-peor">▼ peor</span>
-              </div>
-              <span class="vs-middle-vs">vs</span>
-              <div class="vs-subgroup" style="text-align: right;">
-                <span class="vs-sub-lbl">UTN FRRo</span>
-                <span class="vs-sub-num">36,3%</span>
-              </div>
-            </div>
-          </div>
+                <div class="chart-box-card">
+                  <div class="system-kpi-label gold">INGRESANTES VS. EGRESADOS (2007–2024)</div>
+                  <div class="system-kpi-val">${stats.ingresantesVsEgresados}</div>
+                  <div class="system-kpi-desc">${stats.ingresantesVsEgresadosDesc}</div>
+                </div>
 
-          <!-- Columna 5: No Docentes por Docente -->
-          <div class="vs-col-item">
-            <div class="vs-col-header">NO DOCENTES POR DOCENTE</div>
-            <div class="vs-numbers-row">
-              <div class="vs-subgroup">
-                <span class="vs-sub-lbl">UNR Rosario</span>
-                <span class="vs-sub-num peor">35 c/100</span>
-                <span class="vs-badge-peor">▼ peor</span>
+                <div class="chart-box-card">
+                  <div class="system-kpi-label gold">CARGOS DOCENTES SIMPLES VS. EXCLUSIVOS</div>
+                  <div class="system-kpi-val">${stats.cargosDocentesVsHoras}</div>
+                  <div class="system-kpi-desc">${stats.cargosDocentesDesc}</div>
+                </div>
               </div>
-              <span class="vs-middle-vs">vs</span>
-              <div class="vs-subgroup" style="text-align: right;">
-                <span class="vs-sub-lbl">UTN FRRo</span>
-                <span class="vs-sub-num">25 c/100</span>
+
+              <!-- Gráficos de Evolución Temporal de la Región (SVG) -->
+              <div class="system-charts-grid-2">
+                <!-- Gráfico 1: Ingresantes -->
+                <div class="chart-box-card">
+                  <div class="chart-box-title">INGRESANTES NUEVOS POR AÑO (ROSARIO)</div>
+                  <svg viewBox="0 0 460 145" style="width: 100%; height: auto;" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="gradIngresantes" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#8fb7ff" stop-opacity="0.35" />
+                        <stop offset="100%" stop-color="#8fb7ff" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <!-- Líneas de referencia Y -->
+                    <line x1="35" y1="15" x2="445" y2="15" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="18" fill="rgba(255,255,249,0.3)" font-size="7.5">25.000</text>
+                    <line x1="35" y1="42" x2="445" y2="42" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="45" fill="rgba(255,255,249,0.3)" font-size="7.5">18.750</text>
+                    <line x1="35" y1="70" x2="445" y2="70" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="73" fill="rgba(255,255,249,0.3)" font-size="7.5">12.500</text>
+                    <line x1="35" y1="98" x2="445" y2="98" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="101" fill="rgba(255,255,249,0.3)" font-size="7.5">6.250</text>
+                    <line x1="35" y1="125" x2="445" y2="125" stroke="rgba(255,255,249,0.12)" stroke-width="1" />
+                    <text x="25" y="128" fill="rgba(255,255,249,0.3)" font-size="7.5">0</text>
+
+                    <!-- Área y Trazo -->
+                    <polygon points="45,125 45,69 115,62 185,61 255,59 325,38 425,36 425,125" fill="url(#gradIngresantes)" />
+                    <polyline points="45,69 115,62 185,61 255,59 325,38 425,36" fill="none" stroke="#8fb7ff" stroke-width="2.5" />
+
+                    <!-- Nodos -->
+                    <circle cx="45" cy="69" r="3.5" fill="#8fb7ff" />
+                    <circle cx="115" cy="62" r="3" fill="#8fb7ff" />
+                    <circle cx="185" cy="61" r="3" fill="#8fb7ff" />
+                    <circle cx="255" cy="59" r="3" fill="#8fb7ff" />
+                    <circle cx="325" cy="38" r="3.5" fill="#8fb7ff" />
+                    <circle cx="425" cy="36" r="4" fill="#8fd19e" />
+
+                    <!-- Badge 20.349 -->
+                    <rect x="390" y="15" width="45" height="15" rx="4" fill="#1b2a52" stroke="#8fd19e" stroke-width="0.8" />
+                    <text x="412" y="26" text-anchor="middle" fill="#8fd19e" font-size="7.5" font-weight="800">20.349</text>
+
+                    <!-- Años -->
+                    <text x="45" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2007</text>
+                    <text x="115" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2010</text>
+                    <text x="185" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2013</text>
+                    <text x="255" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2016</text>
+                    <text x="325" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2019</text>
+                    <text x="425" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2024</text>
+                  </svg>
+                </div>
+
+                <!-- Gráfico 2: Egresados -->
+                <div class="chart-box-card">
+                  <div class="chart-box-title">EGRESADOS POR AÑO (ROSARIO)</div>
+                  <svg viewBox="0 0 460 145" style="width: 100%; height: auto;" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="gradEgresados" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#facf3b" stop-opacity="0.35" />
+                        <stop offset="100%" stop-color="#facf3b" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <!-- Líneas de referencia Y -->
+                    <line x1="35" y1="15" x2="445" y2="15" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="18" fill="rgba(255,255,249,0.3)" font-size="7.5">16.000</text>
+                    <line x1="35" y1="42" x2="445" y2="42" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="45" fill="rgba(255,255,249,0.3)" font-size="7.5">12.000</text>
+                    <line x1="35" y1="70" x2="445" y2="70" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="73" fill="rgba(255,255,249,0.3)" font-size="7.5">8.000</text>
+                    <line x1="35" y1="98" x2="445" y2="98" stroke="rgba(255,255,249,0.06)" stroke-width="1" />
+                    <text x="5" y="101" fill="rgba(255,255,249,0.3)" font-size="7.5">4.000</text>
+                    <line x1="35" y1="125" x2="445" y2="125" stroke="rgba(255,255,249,0.12)" stroke-width="1" />
+                    <text x="25" y="128" fill="rgba(255,255,249,0.3)" font-size="7.5">0</text>
+
+                    <!-- Área y Trazo -->
+                    <polygon points="45,125 45,99 115,91 185,56 255,59 325,26 425,96 425,125" fill="url(#gradEgresados)" />
+                    <polyline points="45,99 115,91 185,56 255,59 325,26 425,96" fill="none" stroke="#facf3b" stroke-width="2.5" />
+
+                    <!-- Nodos -->
+                    <circle cx="45" cy="99" r="3.5" fill="#facf3b" />
+                    <circle cx="115" cy="91" r="3" fill="#facf3b" />
+                    <circle cx="185" cy="56" r="3.5" fill="#facf3b" />
+                    <circle cx="255" cy="59" r="3" fill="#facf3b" />
+                    <circle cx="325" cy="26" r="3.5" fill="#facf3b" />
+                    <circle cx="425" cy="96" r="4" fill="#8fd19e" />
+
+                    <!-- Badge 4.179 -->
+                    <rect x="390" y="76" width="45" height="15" rx="4" fill="#1b2a52" stroke="#8fd19e" stroke-width="0.8" />
+                    <text x="412" y="87" text-anchor="middle" fill="#8fd19e" font-size="7.5" font-weight="800">4.179</text>
+
+                    <!-- Años -->
+                    <text x="45" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2007</text>
+                    <text x="115" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2010</text>
+                    <text x="185" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2013</text>
+                    <text x="255" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2016</text>
+                    <text x="325" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2019</text>
+                    <text x="425" y="138" fill="rgba(255,255,249,0.4)" font-size="8">2024</text>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="chart-box-caption">
+                Datos oficiales de las facultades e instituciones cargadas en la región Rosario y la provincia de Santa Fe (Anuarios SPU y presupuestos auditados). Cada gráfico usa su propia escala para evidenciar la brecha entre ingresantes y egresados.
               </div>
             </div>
-          </div>
+          ` : ''}
         </div>
-      </div>
+        `;
+      })()}
 
-      <!-- Nota al pie de la tarjeta VS -->
-      <p class="vs-footer-caption">
-        Valores de grupo ponderados oficiales de la Secretaría de Políticas Universitarias (SPU) y AGN. La UTN demuestra una regularidad de cursado superior con una estructura administrativa más austera por cada egresado efectivo.
-      </p>
-
-      <!-- Botones Píldora de Selección de Métricas (Idénticos a Imagen 3) -->
+      <!-- Botones Píldora de Selección de Métricas -->
       <div class="metric-pills-selector-row">
         <button class="metric-pill-button ${AppState.currentMetric === 'cohorte' ? 'active' : ''}" onclick="selectRankingMetric('cohorte')">Tasa de cohorte (egreso)</button>
         <button class="metric-pill-button ${AppState.currentMetric === 'docentes' ? 'active' : ''}" onclick="selectRankingMetric('docentes')">Estudiantes activos por docente</button>
@@ -704,7 +786,7 @@ function getRankingsPageTemplate() {
         <button class="metric-pill-button ${AppState.currentMetric === 'extranjeros' ? 'active' : ''}" onclick="selectRankingMetric('extranjeros')">Gasto en extranjeros</button>
       </div>
 
-      <!-- Subtítulo de Métrica y Botón de Ordenamiento (De peor a mejor / De mejor a peor) -->
+      <!-- Subtítulo de Métrica y Botón de Ordenamiento -->
       <div class="ranking-meta-controls-bar">
         <div class="ranking-meta-info">${metricDescriptions[AppState.currentMetric] || ''}</div>
 
@@ -714,7 +796,7 @@ function getRankingsPageTemplate() {
         </button>
       </div>
 
-      <!-- Lista Vertical de Tarjetas Ranking (Idéntica a Imagen 3) -->
+      <!-- Lista Vertical de Tarjetas Ranking -->
       <div class="ranked-cards-stack" id="rankedCardsStackContainer">
         <!-- Renderizado dinámico -->
       </div>
@@ -722,16 +804,75 @@ function getRankingsPageTemplate() {
   `;
 }
 
-function getScopeLabel() {
-  if (AppState.currentScope === 'rosario') return 'Rosario (UNR & UTN)';
-  if (AppState.currentScope === 'gran_rosario') return 'Gran Rosario (Zavalla / Casilda)';
-  return 'Provincia de Santa Fe';
+function toggleSystemNumbers() {
+  AppState.isSystemNumbersExpanded = !AppState.isSystemNumbersExpanded;
+  renderCurrentRoute();
 }
 
-function cycleScopeFilter() {
-  if (AppState.currentScope === 'rosario') AppState.currentScope = 'gran_rosario';
-  else if (AppState.currentScope === 'gran_rosario') AppState.currentScope = 'santafe';
-  else AppState.currentScope = 'rosario';
+function getSystemNumbersData(scope) {
+  if (scope === 'gran_rosario') {
+    return {
+      scopeTitle: 'Gran Rosario (Zavalla / Casilda + UTN)',
+      metaText: '3 facultades e instituciones cargadas · 9.930 estudiantes · 598 egresados anuales',
+      noSeRecibeNum: 70,
+      noSeRecibeDesc: 'Egresados anuales sobre ingresantes: 30,1% de egreso promedio en Zavalla (FCA), Casilda (FCV) y UTN FRRo.',
+      sinMateriasNum: '3.750',
+      sinMateriasDesc: '37,8% de los inscriptos en las facultades del Gran Rosario no aprobó ninguna materia en todo el año.',
+      costoGraduadoNum: 53180000,
+      costoGraduadoDesc: 'Promedio ponderado por egresados en Agrarias, Veterinarias y UTN Regional Rosario.',
+      docentesNum: '3,7 x 1',
+      docentesDesc: 'Estudiantes activos por cargo docente en las sedes regionales del Gran Rosario.',
+      extranjerosGasto: 165000000,
+      extranjerosDesc: '107 estudiantes extranjeros en las sedes del Gran Rosario (1,1% del padrón regional).',
+      ingresantesVsEgresados: '+34% vs. +8%',
+      ingresantesVsEgresadosDesc: 'Ingresantes: 1.120 → 1.505.<br>Egresados: 554 → 598 en las sedes regionales.',
+      cargosDocentesVsHoras: '+11% vs. +3%',
+      cargosDocentesDesc: 'Cargos simples: ▲ +58; cargos exclusivos: ▲ +6 en las facultades regionales.'
+    };
+  } else if (scope === 'santafe') {
+    return {
+      scopeTitle: 'Provincia de Santa Fe',
+      metaText: '19 facultades e instituciones cargadas · 181.420 estudiantes · 7.991 egresados anuales',
+      noSeRecibeNum: 73,
+      noSeRecibeDesc: 'Egresados anuales sobre ingresantes: 26,8% de egreso promedio ponderado provincial (UNR, UNL, UNRaf y facultades de la UTN).',
+      sinMateriasNum: '85.550',
+      sinMateriasDesc: '47,2% de los inscriptos en las universidades nacionales de Santa Fe no aprobó ninguna materia en el año.',
+      costoGraduadoNum: 56500000,
+      costoGraduadoDesc: 'Promedio ponderado provincial por egresado entre UNR, UNL, UNRaf y sedes regionales UTN.',
+      docentesNum: '7,5 x 1',
+      docentesDesc: 'Estudiantes activos por cargo docente en las universidades públicas de la provincia.',
+      extranjerosGasto: 10415000000,
+      extranjerosDesc: '6.740 estudiantes extranjeros no residentes en las universidades de la provincia de Santa Fe.',
+      ingresantesVsEgresados: '+62% vs. +19%',
+      ingresantesVsEgresadosDesc: 'Ingresantes Santa Fe: 21.400 → 34.680.<br>Egresados: 6.710 → 7.991 en toda la provincia.',
+      cargosDocentesVsHoras: '+15% vs. +4%',
+      cargosDocentesDesc: 'Crecimiento de cargos simples frente a cargos con dedicación exclusiva en la provincia.'
+    };
+  } else {
+    // Por defecto: 'rosario'
+    return {
+      scopeTitle: 'Región Rosario (UNR & UTN)',
+      metaText: '13 facultades e instituciones cargadas · 110.850 estudiantes · 4.544 egresados anuales',
+      noSeRecibeNum: 75,
+      noSeRecibeDesc: 'Egresados anuales sobre ingresantes: 24,8% de egreso promedio en las facultades de Rosario (24,7% en UNR, 31,0% en UTN FRRo).',
+      sinMateriasNum: '54.830',
+      sinMateriasDesc: '49,5% de los inscriptos de las facultades cargadas de Rosario no aprobó ninguna materia en el año (52,7% en UNR).',
+      costoGraduadoNum: 63015000,
+      costoGraduadoDesc: 'Promedio ponderado por egresados de las facultades de Rosario ($61,5M en UNR, $44,2M en UTN FRRo).',
+      docentesNum: '4,4 x 1',
+      docentesDesc: 'Estudiantes que aprobaron al menos una materia por cada cargo docente en las facultades de Rosario.',
+      extranjerosGasto: 10408000000,
+      extranjerosDesc: '6.736 estudiantes extranjeros no residentes en las facultades de Rosario (6,1% de la matrícula total). Es lo que absorbe el presupuesto público.',
+      ingresantesVsEgresados: '+50% vs. +11%',
+      ingresantesVsEgresadosDesc: 'Ingresantes en Rosario: 13.595 → 20.349.<br>Egresados en Rosario: 3.765 → 4.179.',
+      cargosDocentesVsHoras: '+13% vs. +4%',
+      cargosDocentesDesc: '2017–2023 en UNR. Cargos con dedicación simple: ▲ +891; cargos con dedicación exclusiva: ▲ +46.'
+    };
+  }
+}
+
+function setScopeFilter(scope) {
+  AppState.currentScope = scope;
   renderCurrentRoute();
 }
 
@@ -745,6 +886,33 @@ function toggleSortDirection() {
   renderCurrentRoute();
 }
 
+function getRankingMetricValue(item, metric) {
+  if (metric === 'cohorte') return Number(item.tasaCohorte || 0);
+  if (metric === 'docentes') return Number(item.docentes || 0);
+  if (metric === 'costo') return Number(item.costo || 0);
+  if (metric === 'ceroMaterias') return Number(item.ceroMaterias || 0);
+  if (metric === 'noDocentes') return Number(item.noDocentes || 0);
+  if (metric === 'extranjeros') return Number(item.extranjeros || 0);
+  return 0;
+}
+
+function compareForRanking(a, b, metric, direction) {
+  const valA = getRankingMetricValue(a, metric);
+  const valB = getRankingMetricValue(b, metric);
+
+  // En 'cohorte': un porcentaje mayor es MEJOR (más estudiantes que logran recibirse)
+  // En 'ceroMaterias', 'costo', 'docentes', 'noDocentes', 'extranjeros': un número mayor es PEOR
+  const higherIsBetter = (metric === 'cohorte');
+
+  if (direction === 'asc') {
+    // "De peor a mejor": el PEOR va primero (#1)
+    return higherIsBetter ? valA - valB : valB - valA;
+  } else {
+    // "De mejor a peor": el MEJOR va primero (#1)
+    return higherIsBetter ? valB - valA : valA - valB;
+  }
+}
+
 function initRankingsView() {
   renderRankedCardsList();
 }
@@ -753,7 +921,7 @@ function renderRankedCardsList() {
   const container = document.getElementById('rankedCardsStackContainer');
   if (!container) return;
 
-  // Dataset exclusivo de facultades de la UNR y la UTN en Rosario y la región
+  // Dataset base con las 13 facultades e instituciones del polo Rosario (UNR + UTN FRRo)
   let dataset = UPL_DATA.facultades.map(f => ({
     id: f.id,
     nombre: f.nombre,
@@ -767,55 +935,25 @@ function renderRankedCardsList() {
     ceroMaterias: f.sinMateriasPct,
     noDocentes: f.id === 'utn_rosario' ? 25 : 35,
     extranjeros: f.extranjerosPct,
-    alerta: f.alerta
+    alerta: f.alerta,
+    estudiantes2024: f.estudiantes2024 || f.estudiantes,
+    egresados2024: f.egresados2024 || f.egresados,
+    direccion: f.direccion,
+    sitio: f.sitio
   }));
 
-  // Si el scope es 'gran_rosario', filtramos o destacamos
+  // Filtro según ámbito seleccionado:
   if (AppState.currentScope === 'gran_rosario') {
-    dataset = dataset.filter(f => f.polo === 'regional' || f.id === 'utn_rosario' || f.polo === 'siberia');
+    // Sedes ubicadas en Gran Rosario (Zavalla y Casilda) + UTN FRRo para benchmarking
+    dataset = dataset.filter(f => f.polo === 'regional' || f.id === 'utn_rosario');
   } else if (AppState.currentScope === 'santafe') {
-    // Añadimos UNL y UNRaf para comparación provincial
-    dataset.push(
-      {
-        id: 'unl',
-        nombre: 'Universidad Nacional del Litoral',
-        sigla: 'UNL',
-        ciudad: 'Santa Fe Capital',
-        provincia: 'Santa Fe',
-        polo: 'provincial',
-        tasaCohorte: 29.8,
-        docentes: 4.8,
-        costo: 48200000,
-        ceroMaterias: 44.5,
-        noDocentes: 38,
-        extranjeros: 2.1
-      },
-      {
-        id: 'unraf',
-        nombre: 'Universidad Nacional de Rafaela',
-        sigla: 'UNRaf',
-        ciudad: 'Rafaela',
-        provincia: 'Santa Fe',
-        polo: 'provincial',
-        tasaCohorte: 28.1,
-        docentes: 5.4,
-        costo: 52600000,
-        ceroMaterias: 47.2,
-        noDocentes: 42,
-        extranjeros: 0.8
-      }
-    );
+    // Toda la provincia: Rosario + UNL + UNRaf + sedes UTN provinciales
+    dataset = dataset.concat(PROVINCIA_SANTA_FE_UNIS);
   }
 
-  // Ordenamiento según métrica y dirección
+  // Ordenamiento con la función de comparación por dirección y métrica
   const m = AppState.currentMetric;
-  const isAsc = AppState.sortDirection === 'asc';
-
-  dataset.sort((a, b) => {
-    let valA = a[m] || 0;
-    let valB = b[m] || 0;
-    return isAsc ? valA - valB : valB - valA;
-  });
+  dataset.sort((a, b) => compareForRanking(a, b, m, AppState.sortDirection));
 
   // Renderizar tarjetas con formato idéntico a Imagen 3
   container.innerHTML = dataset.map((item, index) => {
@@ -860,7 +998,7 @@ function renderRankedCardsList() {
 }
 
 // ==========================================
-// 3. VISTA DE PROPUESTAS
+// 3. VISTA DE PROPUESTAS (Exacta a Screenshot 2)
 // ==========================================
 function getPropuestasPageTemplate() {
   const props = UPL_DATA.propuestas;
@@ -868,28 +1006,33 @@ function getPropuestasPageTemplate() {
 
   return `
     <div class="rankings-page-layout">
-      <h1 class="k-page-title">Qué proponemos para Rosario</h1>
+      <h1 class="k-page-title">Qué proponemos</h1>
       <p class="k-page-desc">
-        No estamos en contra de financiar la universidad pública: estamos en contra de financiarla a ciegas. Cuatro propuestas de Universitarios por la Libertad y una apuesta central para la UNR y la UTN en Rosario.
+        No estamos en contra de financiar la universidad pública: estamos en contra de financiarla a ciegas. Cuatro propuestas de Universitarios por la Libertad y una apuesta central, cada una con el dato que la justifica.
       </p>
 
-      <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+      <!-- Lista de Propuestas Numeradas (Idéntica a Captura 2) -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2.5rem;">
         ${props.map((p, idx) => `
-          <div class="glass-strong" style="padding: 1.5rem; border-radius: var(--radius-md);">
-            <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; color: var(--color-upl-amarillo); margin-bottom: 0.5rem;">
-              0${idx + 1}. ${p.titulo}
+          <div class="glass" style="padding: 1.75rem 2rem; border-radius: var(--radius-md); display: flex; gap: 1.5rem; align-items: flex-start;">
+            <div style="font-family: var(--font-display); font-weight: 800; font-size: 3.2rem; color: var(--color-upl-amarillo); line-height: 1; min-width: 45px;">
+              ${idx + 1}
             </div>
-            <p style="color: var(--color-upl-crema); font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem;">${p.bajada}</p>
-            <p style="color: var(--color-upl-crema-muted); font-size: 0.9rem; line-height: 1.55; margin-bottom: 1rem;">${p.detalle}</p>
-            <div style="background: rgba(226, 87, 76, 0.15); border: 1px solid rgba(226, 87, 76, 0.35); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem; color: var(--color-upl-crema);">
-              <span style="color: var(--color-danger-soft); font-weight: 700;">El dato en Rosario: </span>${p.datoRosario}
+            <div style="flex: 1;">
+              <h2 style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: #fffff9; margin-bottom: 0.45rem;">${p.titulo}</h2>
+              <p style="color: var(--color-upl-crema-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.85rem;">${p.detalle}</p>
+              <div style="background: rgba(226, 87, 76, 0.10); border: 1px solid rgba(226, 87, 76, 0.35); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem; color: var(--color-upl-crema);">
+                <strong style="color: var(--color-danger-soft);">Por qué: </strong>${p.datoRosario}
+                <a href="#/rankings" style="color: var(--color-upl-amarillo); text-decoration: underline; margin-left: 0.5rem; font-weight: 600;">Ver el ranking de egreso →</a>
+              </div>
             </div>
           </div>
         `).join('')}
       </div>
 
+      <!-- Tarjeta AvanzAR -->
       <div class="glass-strong" style="padding: 2rem; border-radius: var(--radius-lg); border: 2px solid rgba(250, 207, 59, 0.4);">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
           <h2 style="font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; color: #fff;">${avanzar.nombre}</h2>
           <span style="background: var(--color-upl-amarillo); color: #121833; padding: 0.3rem 0.85rem; border-radius: 999px; font-weight: 800; font-size: 0.85rem;">Becas AvanzAR</span>
         </div>
@@ -930,6 +1073,9 @@ function openDossierById(id) {
     item = UPL_DATA.institucionCentral;
   } else {
     item = UPL_DATA.facultades.find(f => f.id === id);
+    if (!item && typeof PROVINCIA_SANTA_FE_UNIS !== 'undefined') {
+      item = PROVINCIA_SANTA_FE_UNIS.find(u => u.id === id);
+    }
     if (!item && typeof NATIONAL_UNIVERSITIES !== 'undefined') {
       item = NATIONAL_UNIVERSITIES[id];
     }
@@ -1102,7 +1248,7 @@ function renderSearchResults(query) {
 
   // 3. Facultades de Rosario
   UPL_DATA.facultades.forEach(f => {
-    if (!q || f.nombre.toLowerCase().includes(q) || f.sigla.toLowerCase().includes(q) || f.carrerasPrincipales.some(c => c.toLowerCase().includes(q))) {
+    if (!q || f.nombre.toLowerCase().includes(q) || f.sigla.toLowerCase().includes(q) || (f.carrerasPrincipales && f.carrerasPrincipales.some(c => c.toLowerCase().includes(q)))) {
       results.push({ id: f.id, title: f.nombre, subtitle: `${f.sigla} · Rosario`, badge: f.sigla });
     }
   });
